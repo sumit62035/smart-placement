@@ -1,0 +1,19 @@
+﻿# Secrets
+.env
+
+# Python caches
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+
+# Runtime data
+uploads/*
+!uploads/.gitkeep
+reports/*
+!reports/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db

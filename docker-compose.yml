@@ -1,0 +1,92 @@
+version: "3.9"
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  Smart College Placement Analytics & Management System
+#  docker-compose.yml — full-stack local / production stack
+#
+#  Usage:
+#    Development:  docker compose up --build
+#    Production:   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── MySQL ──────────────────────────────────────────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: placement_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-smart_placement}
+      MYSQL_USER: ${MYSQL_USER:-placement_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-placement_pass}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - placement_net
+
+  # ── Flask API ──────────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: placement_api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-change-jwt-in-production}
+      DATABASE_URL: mysql+pymysql://${MYSQL_USER:-placement_user}:${MYSQL_PASSWORD:-placement_pass}@db:3306/${MYSQL_DATABASE:-smart_placement}
+      FLASK_ENV: ${FLASK_ENV:-production}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost}
+      UPLOAD_FOLDER: /app/uploads
+      REPORTS_FOLDER: /app/reports
+    volumes:
+      - uploads_data:/app/uploads
+      - reports_data:/app/reports
+    ports:
+      - "5000:5000"
+    networks:
+      - placement_net
+
+  # ── React + Nginx ──────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-/api}
+    container_name: placement_web
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - placement_net
+
+# ── Named volumes ──────────────────────────────────────────────────────────
+volumes:
+  mysql_data:
+    driver: local
+  uploads_data:
+    driver: local
+  reports_data:
+    driver: local
+
+# ── Network ────────────────────────────────────────────────────────────────
+networks:
+  placement_net:
+    driver: bridge

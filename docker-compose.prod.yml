@@ -1,0 +1,22 @@
+# docker-compose.prod.yml  ── Production overrides
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+version: "3.9"
+
+services:
+  db:
+    # Do NOT expose MySQL port publicly in production
+    ports: []
+
+  backend:
+    # Use pre-built image in CI/CD (override image: registry/backend:tag)
+    environment:
+      FLASK_ENV: production
+    # Disable volume mount of source (already baked into image)
+    volumes:
+      - uploads_data:/app/uploads
+      - reports_data:/app/reports
+
+  frontend:
+    # Terminate TLS at Nginx; map 443 if SSL certs are mounted
+    ports:
+      - "80:80"

@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Environment / secrets
+.env
+*.env
+
+# Development artifacts
+.git/
+.gitignore
+*.md
+Makefile
+
+# Runtime data (mounted as volumes in production)
+uploads/
+reports/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test output
+htmlcov/
+.coverage
+coverage.xml

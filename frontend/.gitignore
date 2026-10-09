@@ -1,0 +1,14 @@
+﻿# Secrets
+.env
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+.cache/
+
+# OS
+.DS_Store
+Thumbs.db

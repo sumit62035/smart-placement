@@ -1,0 +1,21 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+}
+
+.table th {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.card {
+  border-radius: 10px;
+}
+
+.navbar-brand {
+  letter-spacing: 0.5px;
+}
